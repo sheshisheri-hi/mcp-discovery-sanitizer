@@ -16,9 +16,8 @@ Use this as a single post, or split the **Carousel** section into slides.
 
 ## Post
 
-One poisoned MCP server.
-
-Every teammate’s agent.
+One bad MCP tool server.
+Every coworker’s AI agent gets the poison — because discovery text gets cached and pasted into the system prompt.
 
 That’s not a jailbreak pasted into chat.
 That’s discovery metadata — `instructions` + `tools/list` — folded straight into the system prompt.
@@ -52,8 +51,8 @@ If you run MCP at work and you’re not sanitizing discovery, you’re trusting 
 ## Carousel (6 slides — paste one slide per card)
 
 **Slide 1 — Hook**
-One poisoned MCP server.
-Every teammate’s agent.
+One bad MCP tool server.
+Every coworker’s AI agent gets the poison.
 
 **Slide 2 — The twist**
 Agents don’t just “read tools.”
