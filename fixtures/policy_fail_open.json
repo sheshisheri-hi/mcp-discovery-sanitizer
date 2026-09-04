@@ -1,0 +1,9 @@
+{
+  "fail_closed": false,
+  "allow_public_cache": false,
+  "max_instructions_len": 80,
+  "max_description_len": 40,
+  "max_name_len": 32,
+  "trusted_server_ids": ["weather.internal"],
+  "isolate_untrusted": false
+}
