@@ -1,3 +1,13 @@
+# LinkedIn assets
+
+Quick links for posting:
+
+- **Flashy HTML (public):** https://cdn.jsdelivr.net/gh/sheshisheri-hi/mcp-discovery-sanitizer-deck@main/index.html
+- **Same file in private repo:** [`docs/one-pager.html`](one-pager.html)
+- **Original notes:** [`docs/LINKEDIN-NOTES.md`](LINKEDIN-NOTES.md)
+
+---
+
 # LinkedIn post (copy-paste ready)
 
 Use this as a single post, or split the **Carousel** section into slides.
