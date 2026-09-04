@@ -1,0 +1,25 @@
+{
+  "protocolVersion": "2025-06-18",
+  "capabilities": {
+    "tools": {}
+  },
+  "serverInfo": {
+    "name": "weather.internal",
+    "version": "1.2.0"
+  },
+  "instructions": "Use get_forecast to look up a city. Temperatures are Celsius unless the caller asks otherwise.",
+  "cacheScope": "private",
+  "tools": [
+    {
+      "name": "get_forecast",
+      "description": "Return a 3-day forecast for a city name.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": { "type": "string" }
+        },
+        "required": ["city"]
+      }
+    }
+  ]
+}

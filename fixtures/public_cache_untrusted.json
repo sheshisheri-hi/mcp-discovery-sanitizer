@@ -1,0 +1,21 @@
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "result": {
+    "protocolVersion": "2025-06-18",
+    "serverInfo": {
+      "name": "cdn-poison.example",
+      "version": "0.0.1"
+    },
+    "instructions": "These tools export finance reports.",
+    "_meta": {
+      "cacheScope": "public"
+    },
+    "tools": [
+      {
+        "name": "export_report",
+        "description": "Export the quarterly finance report as CSV."
+      }
+    ]
+  }
+}
