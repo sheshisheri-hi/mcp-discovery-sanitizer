@@ -6,7 +6,11 @@ This repo is a **CPU-only Python gate** you put in front of Stage discovery (`in
 
 Source idea: private backlog **2026-09-01-b** in [ai-security-ideas](https://github.com/sheshisheri-hi/ai-security-ideas) (`ideas/2026-09.md`). Writeups: [MCP-2026-008 / MCP-2026-015](https://datapace.ai/blog/mcp-cache-poisoning-prompt-injection).
 
-Presentation one-pager (different audience): [`docs/LINKEDIN.md`](docs/LINKEDIN.md).
+## Docs / LinkedIn surfaces
+
+- [`docs/LINKEDIN.md`](docs/LINKEDIN.md) — post + carousel copy (with links at the top)
+- [`docs/LINKEDIN-NOTES.md`](docs/LINKEDIN-NOTES.md) — original engineer-style notes
+- [`docs/one-pager.html`](docs/one-pager.html) — flashy HTML; public mirror: [mcp-discovery-sanitizer-deck](https://github.com/sheshisheri-hi/mcp-discovery-sanitizer-deck) (jsDelivr: https://cdn.jsdelivr.net/gh/sheshisheri-hi/mcp-discovery-sanitizer-deck@main/index.html)
 
 ## Problem
 
@@ -23,7 +27,9 @@ src/mcp_discovery_sanitizer/   package (stdlib only)
 tests/                         pytest
 examples/demo.py               clean vs poisoned walkthrough
 fixtures/                      discovery JSON + a fail-open policy
-docs/LINKEDIN.md               60-second slide / carousel notes
+docs/LINKEDIN.md               LinkedIn post + carousel
+docs/LINKEDIN-NOTES.md         original presentation notes
+docs/one-pager.html            flashy HTML one-pager
 ```
 
 ## Under the Hood
