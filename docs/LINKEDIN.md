@@ -1,81 +1,91 @@
-# One poisoned MCP server. Every teammate's agent.
+# LinkedIn post (copy-paste ready)
 
-**A shared cache plus an unsanitized `instructions` field turns one hostile server into a company-wide system-prompt injection.**
-
----
-
-## The problem (3 bullets)
-
-- Agents trust MCP discovery (`initialize`, `tools/list`) and paste it into the system prompt.
-- The spec lets a server mark that response `cacheScope: public` — meaning "serve this to anyone."
-- Nobody checks the claim. One intern's flashy server can rewrite every agent's brain.
+Use this as a single post, or split the **Carousel** section into slides.
 
 ---
 
-## What we built (3 bullets)
+## Post
 
-- A **CPU-only** Python gate in front of discovery. No LLM. No GPU.
-- **Allow / strip / block** with reasons you can read, plus a SHA-256 of the blob for diffs.
-- Default-deny public cache from untrusted servers. Bound `instructions`. Treat tool text as hostile.
+One poisoned MCP server.
 
----
+Every teammate’s agent.
 
-## Before / after
+That’s not a jailbreak pasted into chat.
+That’s discovery metadata — `instructions` + `tools/list` — folded straight into the system prompt.
 
-```
-BEFORE                              AFTER
-------                              -----
-server --public cache--> everyone   server --> [sanitizer] --allow--> this user
-        (poison travels)                      |--strip--> this user
-                                              |--block--> nobody
-```
+And if the server marks it `cacheScope: public`?
+Your shared gateway can serve that poison to everyone behind it.
 
-```mermaid
-flowchart LR
-    S[MCP server] --> G[Sanitizer]
-    G -->|allow| A[Agent prompt]
-    G -->|allow_stripped| A
-    G -->|block| X[Drop]
-```
+I built a tiny fix: a CPU-only discovery sanitizer.
 
----
+No LLM.
+No GPU.
+Just a gate that says allow / strip / block *before* the agent trusts the blob.
 
-## Fake screenshots
+What it does:
+→ Bounds and trips on hostile `instructions`
+→ Refuses public cache from untrusted servers
+→ Treats tool text as untrusted
+→ SHA-256 hashes the blob so swaps show up in a diff
 
-```
-$ python -m mcp_discovery_sanitizer fixtures/clean_discovery.json
-{
-  "verdict": "allow",
-  "server_id": "weather.internal",
-  "original_hash": "sha256:1427a0f2…",
-  "actions": ["isolated_instructions", "isolated_tools_description"]
-}
-```
+Before: server → public cache → everyone’s prompt
+After: server → sanitizer → allow / strip / block
 
-```
-$ python -m mcp_discovery_sanitizer fixtures/poisoned_instructions.json
-{
-  "verdict": "block",
-  "server_id": "sketchy-tools",
-  "sanitized": null,
-  "reasons": [
-    {
-      "code": "instructions_blocklist",
-      "message": "instructions matched an obvious injection pattern."
-    }
-  ]
-}
-```
+Weekend sample. Private repo. 48 tests green.
+
+If you run MCP at work and you’re not sanitizing discovery, you’re trusting whoever registered the server.
+
+#AISecurity #MCP #AgentSecurity #LLMOps
 
 ---
 
-## Try it
+## Carousel (6 slides — paste one slide per card)
 
-Repo: `https://github.com/sheshisheri-hi/mcp-discovery-sanitizer`
+**Slide 1 — Hook**
+One poisoned MCP server.
+Every teammate’s agent.
 
-```
-PYTHONPATH=src python examples/demo.py
-python -m mcp_discovery_sanitizer fixtures/poisoned_instructions.json
-```
+**Slide 2 — The twist**
+Agents don’t just “read tools.”
+They paste server `instructions` into the system prompt.
 
-Private sample of backlog **2026-09-01-b** (MCP-2026-008 / MCP-2026-015).
+Nobody asked if that text was safe.
+
+**Slide 3 — The amplifier**
+MCP lets a server say: cache this for everyone (`cacheScope: public`).
+
+One bad list.
+Company-wide injection.
+
+**Slide 4 — The fix**
+A discovery sanitizer in front of the agent.
+
+Allow.
+Strip.
+Block.
+
+With reasons you can actually read.
+
+**Slide 5 — What it checks**
+• Bound / tripwire on `instructions`
+• No public cache from strangers
+• Tool descriptions = untrusted
+• Hash the blob for audit diffs
+
+CPU only. No model required.
+
+**Slide 6 — CTA**
+Stop folding raw discovery into the system prompt.
+
+Gate it first.
+
+(Private sample: mcp-discovery-sanitizer)
+
+---
+
+## Comment you can pin under the post
+
+Built as a weekend Stage-discovery gate (MCP-2026-008 / 015 style risk).
+Not a full WAF. Not MCP-Guard Stage I. Just the missing filter before `initialize` / `tools/list` hit the prompt.
+
+Happy to walk through the verdict JSON if useful.
