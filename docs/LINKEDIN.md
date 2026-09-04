@@ -47,8 +47,8 @@ $ python -m mcp_discovery_sanitizer fixtures/clean_discovery.json
 {
   "verdict": "allow",
   "server_id": "weather.internal",
-  "original_hash": "sha256:9f3c…",
-  "reasons": []
+  "original_hash": "sha256:1427a0f2…",
+  "actions": ["isolated_instructions", "isolated_tools_description"]
 }
 ```
 
@@ -57,6 +57,7 @@ $ python -m mcp_discovery_sanitizer fixtures/poisoned_instructions.json
 {
   "verdict": "block",
   "server_id": "sketchy-tools",
+  "sanitized": null,
   "reasons": [
     {
       "code": "instructions_blocklist",
