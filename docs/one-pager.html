@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP Discovery Sanitizer — one poisoned server, every teammate's agent</title>
+<meta name="description" content="A CPU-only gate that allow / strip / blocks MCP discovery before agents fold it into the system prompt." />
+<meta property="og:title" content="MCP Discovery Sanitizer" />
+<meta property="og:description" content="One poisoned MCP server. Every teammate's agent. Gate discovery before it hits the system prompt." />
+<meta property="og:type" content="website" />
+<style>
+  :root {
+    --bg: #070b14;
+    --bg2: #0d1424;
+    --card: #121a2e;
+    --line: rgba(125, 211, 252, 0.18);
+    --text: #e8eefc;
+    --muted: #9aabca;
+    --cyan: #22d3ee;
+    --violet: #a78bfa;
+    --rose: #fb7185;
+    --lime: #a3e635;
+    --amber: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 500px at 10% -10%, rgba(34, 211, 238, 0.18), transparent 60%),
+      radial-gradient(800px 480px at 90% 0%, rgba(167, 139, 250, 0.16), transparent 55%),
+      radial-gradient(700px 500px at 50% 110%, rgba(251, 113, 133, 0.12), transparent 50%),
+      var(--bg);
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 20px 80px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(18, 26, 46, 0.8);
+    color: var(--cyan); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.05; margin: 18px 0 14px;
+    letter-spacing: -0.03em;
+  }
+  h1 span { background: linear-gradient(90deg, var(--cyan), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 1.15rem; color: var(--muted); max-width: 38rem; line-height: 1.55; margin: 0 0 28px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent), var(--card);
+    border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .card h3 { margin: 0 0 8px; font-size: 0.95rem; color: var(--text); }
+  .card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
+  .section { margin-top: 34px; }
+  .section h2 { font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--violet); margin: 0 0 12px; }
+  .flow {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch;
+  }
+  @media (max-width: 760px) { .flow { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); justify-self: center; } }
+  .panel {
+    border-radius: 18px; border: 1px solid var(--line); padding: 18px; background: var(--bg2);
+  }
+  .panel.bad { border-color: rgba(251, 113, 133, 0.35); }
+  .panel.good { border-color: rgba(34, 211, 238, 0.35); }
+  .panel h3 { margin: 0 0 10px; font-size: 1rem; }
+  .panel ul { margin: 0; padding-left: 1.1rem; color: var(--muted); line-height: 1.55; }
+  .arrow { color: var(--muted); font-size: 1.6rem; align-self: center; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .pill {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 6px 10px; border-radius: 999px; border: 1px solid transparent;
+  }
+  .pill.allow { color: #052e16; background: var(--lime); }
+  .pill.strip { color: #451a03; background: var(--amber); }
+  .pill.block { color: #4c0519; background: var(--rose); }
+  .code {
+    margin-top: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.45; background: #050814; border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px; color: #c7d2fe; overflow-x: auto; white-space: pre;
+  }
+  .footer {
+    margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 10px 18px; justify-content: space-between;
+  }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .tagline { font-weight: 600; color: var(--text); }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">AI security · MCP · weekend sample</div>
+    <h1>One poisoned MCP server.<br /><span>Every teammate’s agent.</span></h1>
+    <p class="lede">
+      Agents fold discovery (<code>instructions</code>, <code>tools/list</code>) into the system prompt.
+      Mark it <code>cacheScope: public</code> and a shared gateway can fan the poison out.
+      This page is the fix in one screen: a CPU-only gate that decides <strong>allow / strip / block</strong> first.
+    </p>
+
+    <div class="grid">
+      <article class="card">
+        <h3>The problem</h3>
+        <p>Server-controlled text lands in the system prompt with no bound, no isolation, and sometimes a public cache bit nobody verifies.</p>
+      </article>
+      <article class="card">
+        <h3>The amplifier</h3>
+        <p><code>cacheScope: public</code> means “serve across auth contexts.” One bad list becomes a company-wide injection.</p>
+      </article>
+      <article class="card">
+        <h3>The gate</h3>
+        <p>Sanitize discovery before the agent trusts it. No LLM. No GPU. Readable reasons + a SHA-256 for diffs.</p>
+      </article>
+    </div>
+
+    <section class="section">
+      <h2>Before → after</h2>
+      <div class="flow">
+        <div class="panel bad">
+          <h3>Before</h3>
+          <ul>
+            <li>Server returns poisoned discovery</li>
+            <li>Public cache reuses it</li>
+            <li>Every agent behind the gateway eats it</li>
+          </ul>
+        </div>
+        <div class="arrow">→</div>
+        <div class="panel good">
+          <h3>After</h3>
+          <ul>
+            <li>Sanitizer sits in front of discovery</li>
+            <li>Public cache from strangers refused</li>
+            <li>Only allow / strip / block reaches the prompt</li>
+          </ul>
+          <div class="pills">
+            <span class="pill allow">allow</span>
+            <span class="pill strip">strip</span>
+            <span class="pill block">block</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What it checks</h2>
+      <div class="grid">
+        <article class="card"><h3>Instructions</h3><p>Length bounds + obvious-injection tripwire. Leftovers can be wrapped as untrusted.</p></article>
+        <article class="card"><h3>Public cache</h3><p>Default-deny <code>cacheScope: public</code> unless the server is on your trust list.</p></article>
+        <article class="card"><h3>Tool text</h3><p>Names and descriptions treated as hostile input, not trusted schema docs.</p></article>
+      </div>
+      <div class="code">{
+  "verdict": "block",
+  "server_id": "sketchy-tools",
+  "reasons": [{ "code": "instructions_blocklist" }],
+  "original_hash": "sha256:…"
+}</div>
+    </section>
+
+    <footer class="footer">
+      <div>
+        <div class="tagline">MCP discovery sanitizer</div>
+        Private sample · backlog 2026-09-01-b · MCP-2026-008 / 015
+      </div>
+      <div>
+        Code: <a href="https://github.com/sheshisheri-hi/mcp-discovery-sanitizer">github.com/sheshisheri-hi/mcp-discovery-sanitizer</a>
+      </div>
+    </footer>
+  </main>
+</body>
+</html>
